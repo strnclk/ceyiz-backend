@@ -29,15 +29,15 @@ public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQu
             .Where(i => i.UserId == userId && i.IsCompleted)
             .CountAsync(cancellationToken);
 
-        // Toplam bütçe
-        var totalBudget = await _context.Budgets
-            .Where(b => b.UserId == userId)
-            .SumAsync(b => b.TotalAmount, cancellationToken);
+        // Toplam bütçe (trousseau ürünlerinden)
+        var totalBudget = await _context.TrousseauItems
+            .Where(i => i.UserId == userId)
+            .SumAsync(i => i.Price, cancellationToken);
 
-        // Harcanan bütçe
-        var spentBudget = await _context.Budgets
-            .Where(b => b.UserId == userId)
-            .SumAsync(b => b.SpentAmount, cancellationToken);
+        // Harcanan bütçe (tamamlanan ürünlerden)
+        var spentBudget = await _context.TrousseauItems
+            .Where(i => i.UserId == userId && i.IsCompleted)
+            .SumAsync(i => i.Price, cancellationToken);
 
         // Hesaplamalar
         var completionPercentage = totalItems > 0 ? (double)completedItems / totalItems * 100 : 0;

@@ -11,6 +11,7 @@ public class CeyizDbContext : DbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<UserProfile> UserProfiles { get; set; }
+    public DbSet<UserSettings> UserSettings { get; set; }
     public DbSet<TrousseauItem> TrousseauItems { get; set; }
     public DbSet<Budget> Budgets { get; set; }
     public DbSet<Achievement> Achievements { get; set; }
@@ -41,6 +42,22 @@ public class CeyizDbContext : DbContext
             entity.HasOne(e => e.User)
                   .WithOne(u => u.Profile)
                   .HasForeignKey<UserProfile>(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // UserSettings configuration
+        modelBuilder.Entity<UserSettings>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.ToTable("CeyizUserSettings");
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.TotalBudget).HasDefaultValue(75000);
+            entity.Property(e => e.WeddingDate).HasMaxLength(50);
+            entity.Property(e => e.PartnerName).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETDATE()");
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
 

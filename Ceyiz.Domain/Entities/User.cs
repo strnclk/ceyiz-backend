@@ -13,4 +13,5 @@ public class User
     public ICollection<TrousseauItem> TrousseauItems { get; set; } = new List<TrousseauItem>();
     public ICollection<Budget> Budgets { get; set; } = new List<Budget>();
     public UserProfile? Profile { get; set; }
+    public UserSettings? Settings { get; set; }
 }

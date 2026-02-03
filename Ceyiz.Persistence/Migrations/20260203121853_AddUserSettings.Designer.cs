@@ -4,6 +4,7 @@ using Ceyiz.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Ceyiz.Persistence.Migrations
 {
     [DbContext(typeof(CeyizDbContext))]
-    partial class CeyizDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260203121853_AddUserSettings")]
+    partial class AddUserSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -251,9 +254,6 @@ namespace Ceyiz.Persistence.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("UserId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("WeddingDate")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -262,10 +262,6 @@ namespace Ceyiz.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1")
-                        .IsUnique()
-                        .HasFilter("[UserId1] IS NOT NULL");
 
                     b.ToTable("CeyizUserSettings", (string)null);
                 });
@@ -311,10 +307,6 @@ namespace Ceyiz.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Ceyiz.Domain.Entities.User", null)
-                        .WithOne("Settings")
-                        .HasForeignKey("Ceyiz.Domain.Entities.UserSettings", "UserId1");
-
                     b.Navigation("User");
                 });
 
@@ -323,8 +315,6 @@ namespace Ceyiz.Persistence.Migrations
                     b.Navigation("Budgets");
 
                     b.Navigation("Profile");
-
-                    b.Navigation("Settings");
 
                     b.Navigation("TrousseauItems");
                 });

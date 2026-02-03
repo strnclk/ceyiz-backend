@@ -19,6 +19,7 @@ builder.Services.AddDbContext<CeyizDbContext>(options =>
 
 // MediatR
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Ceyiz.Application.Features.Auth.Commands.LoginCommand).Assembly));
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Ceyiz.Application.Features.User.Commands.UpdateUserSettingsCommand).Assembly));
 
 // Services
 builder.Services.AddScoped<Ceyiz.Application.Services.IJwtService, Ceyiz.Application.Services.JwtService>();
@@ -47,7 +48,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5174", "http://127.0.0.1:5771")
+        policy.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5771", "http://127.0.0.1:27965")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
