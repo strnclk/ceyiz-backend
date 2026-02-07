@@ -19,7 +19,7 @@ public class GetTrousseauItemsQueryHandler : IRequestHandler<GetTrousseauItemsQu
     public async Task<List<TrousseauItemDto>> Handle(GetTrousseauItemsQuery request, CancellationToken cancellationToken)
     {
         var items = await _context.TrousseauItems
-            .Where(i => i.UserId == request.UserId)
+            .Where(i => i.UserId == request.UserId || i.PartnerId == request.UserId)
             .Select(i => new TrousseauItemDto
             {
                 Id = i.Id,

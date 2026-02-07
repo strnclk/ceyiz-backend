@@ -12,10 +12,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Database
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Database - InMemory for testing
 builder.Services.AddDbContext<CeyizDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseInMemoryDatabase("CeyizDb"));
 
 // MediatR
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Ceyiz.Application.Features.Auth.Commands.LoginCommand).Assembly));
@@ -24,6 +23,7 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Ceyiz
 // Services
 builder.Services.AddScoped<Ceyiz.Application.Services.IJwtService, Ceyiz.Application.Services.JwtService>();
 builder.Services.AddScoped<Ceyiz.Application.Services.IAuthService, Ceyiz.Application.Services.AuthService>();
+builder.Services.AddHttpContextAccessor();
 
 // JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not found");
@@ -48,13 +48,17 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5771", "http://127.0.0.1:27965")
+        policy.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5771", "http://127.0.0.1:52532")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
 
 var app = builder.Build();
+
+// Configure URLs
+app.Urls.Add("http://localhost:5130");
+app.Urls.Add("https://localhost:5131");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -63,10 +67,29 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
+
+// Authentication ve Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        
+        var exception = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+        if (exception != null)
+        {
+            var error = new { error = exception.Error.Message };
+            await context.Response.WriteAsJsonAsync(error);
+        }
+    });
+});
+
 app.MapControllers();
 
 app.Run();
