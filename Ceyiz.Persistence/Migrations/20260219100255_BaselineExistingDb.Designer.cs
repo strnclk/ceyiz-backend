@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Ceyiz.Persistence.Migrations
 {
     [DbContext(typeof(CeyizDbContext))]
-    [Migration("20260207121002_AddPartnerId")]
-    partial class AddPartnerId
+    [Migration("20260219100255_BaselineExistingDb")]
+    partial class BaselineExistingDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -177,9 +177,6 @@ namespace Ceyiz.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
-
-                    b.Property<Guid?>("PartnerId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()

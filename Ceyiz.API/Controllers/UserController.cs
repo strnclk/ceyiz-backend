@@ -37,7 +37,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("partner")]
-    [AllowAnonymous]
+    [Authorize]
     public async Task<ActionResult> LinkPartner([FromBody] LinkPartnerCommand command)
     {
         var result = await _mediator.Send(command);
@@ -59,6 +59,77 @@ public class UserController : ControllerBase
     {
         var userId = GetUserIdFromToken();
         var result = await _mediator.Send(new GetPartnerQuery { UserId = userId });
+        return Ok(result);
+    }
+
+    [HttpGet("partners")]
+    [Authorize]
+    public async Task<ActionResult> GetPartners()
+    {
+        var userId = GetUserIdFromToken();
+        var result = await _mediator.Send(new GetPartnersQuery { UserId = userId });
+        return Ok(result);
+    }
+
+    [HttpPost("partners")]
+    [Authorize]
+    public async Task<ActionResult> LinkPartnerMulti([FromBody] LinkPartnerCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    [HttpDelete("partners/{partnerId}")]
+    [Authorize]
+    public async Task<ActionResult> UnlinkPartnerMulti(Guid partnerId)
+    {
+        var userId = GetUserIdFromToken();
+        var result = await _mediator.Send(new UnlinkPartnerByPartnerIdCommand { UserId = userId, PartnerId = partnerId });
+        return Ok(result);
+    }
+
+    [HttpGet("partner-invites/incoming")]
+    [Authorize]
+    public async Task<ActionResult> GetIncomingPartnerInvites()
+    {
+        var userId = GetUserIdFromToken();
+        var result = await _mediator.Send(new GetIncomingPartnerInvitesQuery { UserId = userId });
+        return Ok(result);
+    }
+
+    [HttpGet("partner-invites/outgoing")]
+    [Authorize]
+    public async Task<ActionResult> GetOutgoingPartnerInvites()
+    {
+        var userId = GetUserIdFromToken();
+        var result = await _mediator.Send(new GetOutgoingPartnerInvitesQuery { UserId = userId });
+        return Ok(result);
+    }
+
+    [HttpPost("partner-invites/{invitationId}/accept")]
+    [Authorize]
+    public async Task<ActionResult> AcceptPartnerInvite(Guid invitationId)
+    {
+        var userId = GetUserIdFromToken();
+        var result = await _mediator.Send(new AcceptPartnerInviteCommand { UserId = userId, InvitationId = invitationId });
+        return Ok(result);
+    }
+
+    [HttpPost("partner-invites/{invitationId}/reject")]
+    [Authorize]
+    public async Task<ActionResult> RejectPartnerInvite(Guid invitationId)
+    {
+        var userId = GetUserIdFromToken();
+        var result = await _mediator.Send(new RejectPartnerInviteCommand { UserId = userId, InvitationId = invitationId });
+        return Ok(result);
+    }
+
+    [HttpPost("partner-invites/{invitationId}/cancel")]
+    [Authorize]
+    public async Task<ActionResult> CancelPartnerInvite(Guid invitationId)
+    {
+        var userId = GetUserIdFromToken();
+        var result = await _mediator.Send(new CancelPartnerInviteCommand { UserId = userId, InvitationId = invitationId });
         return Ok(result);
     }
 

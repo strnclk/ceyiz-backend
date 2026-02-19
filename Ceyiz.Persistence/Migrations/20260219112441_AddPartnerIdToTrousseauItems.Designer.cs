@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Ceyiz.Persistence.Migrations
 {
     [DbContext(typeof(CeyizDbContext))]
-    [Migration("20260203121936_UpdateUserSettings")]
-    partial class UpdateUserSettings
+    [Migration("20260219112441_AddPartnerIdToTrousseauItems")]
+    partial class AddPartnerIdToTrousseauItems
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -131,6 +131,9 @@ namespace Ceyiz.Persistence.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<Guid?>("PartnerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal>("Price")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("decimal(18,2)")
@@ -175,6 +178,9 @@ namespace Ceyiz.Persistence.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<Guid?>("PartnerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -188,6 +194,33 @@ namespace Ceyiz.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("CeyizUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Ceyiz.Domain.Entities.UserPartnerLink", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<Guid>("PartnerUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PartnerUserId");
+
+                    b.HasIndex("UserId", "PartnerUserId")
+                        .IsUnique();
+
+                    b.ToTable("CeyizUserPartnerLinks", (string)null);
                 });
 
             modelBuilder.Entity("Ceyiz.Domain.Entities.UserProfile", b =>
@@ -291,6 +324,25 @@ namespace Ceyiz.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Ceyiz.Domain.Entities.UserPartnerLink", b =>
+                {
+                    b.HasOne("Ceyiz.Domain.Entities.User", "PartnerUser")
+                        .WithMany()
+                        .HasForeignKey("PartnerUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Ceyiz.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PartnerUser");
 
                     b.Navigation("User");
                 });

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Ceyiz.Persistence.Migrations
 {
     [DbContext(typeof(CeyizDbContext))]
-    [Migration("20260202133719_InitialCeyizTables")]
-    partial class InitialCeyizTables
+    [Migration("20260219100454_AddPartnerIdToUsers")]
+    partial class AddPartnerIdToUsers
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -131,6 +131,9 @@ namespace Ceyiz.Persistence.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<Guid?>("PartnerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal>("Price")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("decimal(18,2)")
@@ -174,6 +177,9 @@ namespace Ceyiz.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid?>("PartnerId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -227,6 +233,52 @@ namespace Ceyiz.Persistence.Migrations
                     b.ToTable("CeyizUserProfiles", (string)null);
                 });
 
+            modelBuilder.Entity("Ceyiz.Domain.Entities.UserSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("PartnerName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<decimal>("TotalBudget")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(75000m);
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("UserId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("WeddingDate")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId1")
+                        .IsUnique()
+                        .HasFilter("[UserId1] IS NOT NULL");
+
+                    b.ToTable("CeyizUserSettings", (string)null);
+                });
+
             modelBuilder.Entity("Ceyiz.Domain.Entities.Budget", b =>
                 {
                     b.HasOne("Ceyiz.Domain.Entities.User", "User")
@@ -260,11 +312,28 @@ namespace Ceyiz.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Ceyiz.Domain.Entities.UserSettings", b =>
+                {
+                    b.HasOne("Ceyiz.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Ceyiz.Domain.Entities.User", null)
+                        .WithOne("Settings")
+                        .HasForeignKey("Ceyiz.Domain.Entities.UserSettings", "UserId1");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Ceyiz.Domain.Entities.User", b =>
                 {
                     b.Navigation("Budgets");
 
                     b.Navigation("Profile");
+
+                    b.Navigation("Settings");
 
                     b.Navigation("TrousseauItems");
                 });

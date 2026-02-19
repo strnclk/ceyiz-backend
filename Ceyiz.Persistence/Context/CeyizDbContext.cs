@@ -15,6 +15,8 @@ public class CeyizDbContext : DbContext
     public DbSet<TrousseauItem> TrousseauItems { get; set; }
     public DbSet<Budget> Budgets { get; set; }
     public DbSet<Achievement> Achievements { get; set; }
+    public DbSet<UserPartnerLink> UserPartnerLinks { get; set; }
+    public DbSet<PartnerInvitation> PartnerInvitations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -103,6 +105,45 @@ public class CeyizDbContext : DbContext
             entity.Property(e => e.Description).IsRequired();
             entity.Property(e => e.IconName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETDATE()");
+        });
+
+        modelBuilder.Entity<UserPartnerLink>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.ToTable("CeyizUserPartnerLinks");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETDATE()");
+
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.PartnerUser)
+                  .WithMany()
+                  .HasForeignKey(e => e.PartnerUserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => new { e.UserId, e.PartnerUserId }).IsUnique();
+        });
+
+        modelBuilder.Entity<PartnerInvitation>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.ToTable("CeyizPartnerInvitations");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETDATE()");
+            entity.Property(e => e.Status).IsRequired();
+
+            entity.HasOne(e => e.RequesterUser)
+                  .WithMany()
+                  .HasForeignKey(e => e.RequesterUserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.TargetUser)
+                  .WithMany()
+                  .HasForeignKey(e => e.TargetUserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => new { e.RequesterUserId, e.TargetUserId }).IsUnique();
         });
     }
 }

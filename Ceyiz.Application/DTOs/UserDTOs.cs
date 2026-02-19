@@ -17,3 +17,21 @@ public class UpdateUserSettingsDto
     public string WeddingDate { get; set; } = string.Empty;
     public string PartnerName { get; set; } = string.Empty;
 }
+
+public class PartnerDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
+}
+
+public class PartnerInviteDto
+{
+    public Guid Id { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
+
+    public PartnerDto Requester { get; set; } = null!;
+    public PartnerDto Target { get; set; } = null!;
+}
